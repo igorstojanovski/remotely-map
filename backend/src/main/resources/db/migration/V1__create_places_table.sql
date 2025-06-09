@@ -1,0 +1,18 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE places (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    address VARCHAR(255) NOT NULL,
+    rating DECIMAL(3,1),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE place_photos (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    place_id UUID NOT NULL REFERENCES places(id) ON DELETE CASCADE,
+    photo_url VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);

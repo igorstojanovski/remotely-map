@@ -1,0 +1,6 @@
+.idea
+.vscode/
+backend/.idea
+backend/target
+frontend/.next
+frontend/node_modules

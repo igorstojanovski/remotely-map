@@ -1,0 +1,35 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: remotely
+      POSTGRES_USER: remotely
+      POSTGRES_PASSWORD: letmeinsecure
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db/remotely
+      SPRING_DATASOURCE_USERNAME: remotely
+      SPRING_DATASOURCE_PASSWORD: letmeinsecure
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    environment:
+      API_URL: http://localhost:8080/api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
