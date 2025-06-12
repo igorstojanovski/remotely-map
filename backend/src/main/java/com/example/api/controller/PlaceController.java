@@ -7,6 +7,13 @@ import com.example.api.dto.PlaceResponse;
 import com.example.api.mapper.PlaceMapper;
 import com.example.api.model.Place;
 import com.example.api.service.PlaceService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,10 +28,26 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/places")
 @RequiredArgsConstructor
+@Tag(name = "Places", description = "Places management APIs")
 public class PlaceController {
     private final PlaceService placeService;
     private final PlaceMapper placeMapper;
 
+    @Operation(
+        summary = "Create a new place",
+        description = "Creates a new place with the provided details"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "201",
+            description = "Place created successfully",
+            content = @Content(schema = @Schema(implementation = PlaceResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid input"
+        )
+    })
     @PostMapping
     public ResponseEntity<PlaceResponse> createPlace(@Valid @RequestBody PlaceRequest request) {
         Place place = placeMapper.toEntity(request);
@@ -32,9 +55,22 @@ public class PlaceController {
         return new ResponseEntity<>(placeMapper.toResponse(savedPlace), HttpStatus.CREATED);
     }
 
+    @Operation(
+        summary = "Get all places",
+        description = "Retrieves a paginated list of all places"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Successfully retrieved places",
+            content = @Content(schema = @Schema(implementation = PaginatedResponse.class))
+        )
+    })
     @GetMapping
     public ResponseEntity<PaginatedResponse<PlaceResponse>> getAllPlaces(
+            @Parameter(description = "Page number (0-based)") 
             @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Number of items per page") 
             @RequestParam(defaultValue = "10") int size) {
         
         List<Place> places = placeService.getAllPlaces(page, size);
@@ -58,15 +94,52 @@ public class PlaceController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+        summary = "Get place by ID",
+        description = "Retrieves a specific place by its ID"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Place found",
+            content = @Content(schema = @Schema(implementation = PlaceResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Place not found"
+        )
+    })
     @GetMapping("/{id}")
-    public ResponseEntity<PlaceResponse> getPlaceById(@PathVariable UUID id) {
+    public ResponseEntity<PlaceResponse> getPlaceById(
+            @Parameter(description = "Place ID") 
+            @PathVariable UUID id) {
         return placeService.getPlaceById(id)
                 .map(place -> ResponseEntity.ok(placeMapper.toResponse(place)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(
+        summary = "Update a place",
+        description = "Updates an existing place with new details"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Place updated successfully",
+            content = @Content(schema = @Schema(implementation = PlaceResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Place not found"
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid input"
+        )
+    })
     @PutMapping("/{id}")
     public ResponseEntity<PlaceResponse> updatePlace(
+            @Parameter(description = "Place ID") 
             @PathVariable UUID id,
             @Valid @RequestBody PlaceRequest request) {
         Place place = placeMapper.toEntity(request);
@@ -75,16 +148,53 @@ public class PlaceController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(
+        summary = "Delete a place",
+        description = "Deletes a place by its ID"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "204",
+            description = "Place deleted successfully"
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Place not found"
+        )
+    })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePlace(@PathVariable UUID id) {
+    public ResponseEntity<Void> deletePlace(
+            @Parameter(description = "Place ID") 
+            @PathVariable UUID id) {
         return placeService.deletePlace(id)
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.notFound().build();
     }
 
+    @Operation(
+        summary = "Upload a photo",
+        description = "Uploads a photo for a specific place"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "201",
+            description = "Photo uploaded successfully",
+            content = @Content(schema = @Schema(implementation = PhotoUploadResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Place not found"
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid file"
+        )
+    })
     @PostMapping(value = "/{id}/photos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PhotoUploadResponse> uploadPhoto(
+            @Parameter(description = "Place ID") 
             @PathVariable UUID id,
+            @Parameter(description = "Photo file") 
             @RequestParam("file") MultipartFile file) {
         return placeService.uploadPhoto(id, file)
                 .map(photoUrl -> new ResponseEntity<>(
