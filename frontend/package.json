@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "generate-api": "openapi-generator-cli generate -i http://localhost:8080/api-docs -g typescript-fetch -o src/lib/api/generated"
   },
   "dependencies": {
     "axios": "^1.9.0",
@@ -16,6 +17,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@openapitools/openapi-generator-cli": "^2.20.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
