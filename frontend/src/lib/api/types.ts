@@ -1,35 +1,17 @@
-export interface Place {
-  id: number;
-  name: string;
-  description: string;
-  address: string;
-  photos: string[];
-  createdAt: string;
-  updatedAt: string;
-  rating: number;
-}
+import { PlaceResponse, PlaceRequest, PaginatedResponse as GeneratedPaginatedResponse } from './generated';
 
-export interface CreatePlaceRequest {
-  name: string;
-  description: string;
-  address: string;
-  photos: string[];
-}
+// Re-export generated types
+export type { PlaceResponse as Place, PlaceRequest };
 
-export interface UpdatePlaceRequest {
-  name?: string;
-  description?: string;
-  address?: string;
-  photos?: string[];
-  rating?: number;
-}
-
+// Extend generated types if needed
 export interface PaginatedResponse<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
+  content?: T[];
+  page?: number;
+  size?: number;
+  totalElements?: number;
+  totalPages?: number;
+  hasNext?: boolean;
+  hasPrevious?: boolean;
 }
 
 export type ApiError = {

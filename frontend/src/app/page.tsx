@@ -12,12 +12,12 @@ export default function Home() {
     loading,
     error,
     execute: searchPlaces,
-  } = useApi<PaginatedResponse<Place>, [number?, number?]>(placesApi.getAllPlaces);
+  } = useApi<PaginatedResponse<Place>, []>(() => placesApi.getAllPlaces());
 
   const handleSearch = (location: string) => {
     // TODO: Update this when backend supports location-based search
     console.log('Searching for places in:', location);
-    searchPlaces(0, 10);
+    searchPlaces();
   };
 
   return (
@@ -46,7 +46,7 @@ export default function Home() {
               {placesData.totalElements} places found
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {placesData.content.map((place) => (
+              {placesData.content?.map((place) => (
                 <PlaceCard key={place.id} place={place} />
               ))}
             </div>
