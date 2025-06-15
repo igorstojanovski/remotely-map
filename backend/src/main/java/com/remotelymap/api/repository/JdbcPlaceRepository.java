@@ -1,6 +1,6 @@
-package com.example.api.repository;
+package com.remotelymap.api.repository;
 
-import com.example.api.model.Place;
+import com.remotelymap.api.model.Place;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;

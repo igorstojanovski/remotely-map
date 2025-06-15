@@ -1,8 +1,8 @@
-package com.example.api.mapper;
+package com.remotelymap.api.mapper;
 
-import com.example.api.dto.PlaceRequest;
-import com.example.api.dto.PlaceResponse;
-import com.example.api.model.Place;
+import com.remotelymap.api.dto.PlaceRequest;
+import com.remotelymap.api.dto.PlaceResponse;
+import com.remotelymap.api.model.Place;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
