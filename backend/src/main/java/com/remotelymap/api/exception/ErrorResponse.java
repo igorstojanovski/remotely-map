@@ -1,4 +1,4 @@
-package com.example.api.exception;
+package com.remotelymap.api.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

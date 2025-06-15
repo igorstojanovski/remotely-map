@@ -1,12 +1,12 @@
-package com.example.api.controller;
+package com.remotelymap.api.controller;
 
-import com.example.api.dto.PaginatedResponse;
-import com.example.api.dto.PhotoUploadResponse;
-import com.example.api.dto.PlaceRequest;
-import com.example.api.dto.PlaceResponse;
-import com.example.api.mapper.PlaceMapper;
-import com.example.api.model.Place;
-import com.example.api.service.PlaceService;
+import com.remotelymap.api.dto.PaginatedResponse;
+import com.remotelymap.api.dto.PhotoUploadResponse;
+import com.remotelymap.api.dto.PlaceRequest;
+import com.remotelymap.api.dto.PlaceResponse;
+import com.remotelymap.api.mapper.PlaceMapper;
+import com.remotelymap.api.model.Place;
+import com.remotelymap.api.service.PlaceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;

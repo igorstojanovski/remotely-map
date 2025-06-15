@@ -1,4 +1,4 @@
-package com.example.api.exception;
+package com.remotelymap.api.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

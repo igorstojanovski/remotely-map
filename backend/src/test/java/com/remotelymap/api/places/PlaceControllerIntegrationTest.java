@@ -1,9 +1,9 @@
-package com.example.api;
+package com.remotelymap.api.places;
 
-import com.example.api.dto.PhotoUploadResponse;
-import com.example.api.dto.PlaceRequest;
-import com.example.api.dto.PlaceResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.remotelymap.api.dto.PhotoUploadResponse;
+import com.remotelymap.api.dto.PlaceRequest;
+import com.remotelymap.api.dto.PlaceResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -16,7 +16,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -32,12 +31,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Testcontainers
-@TestPropertySource(properties = {
-    "spring.jpa.hibernate.ddl-auto=validate",
-    "spring.flyway.enabled=true",
-    "logging.level.org.springframework=DEBUG",
-    "logging.level.com.example.api=DEBUG"
-})
 class PlaceControllerIntegrationTest {
     private static final Logger log = LoggerFactory.getLogger(PlaceControllerIntegrationTest.class);
 
@@ -256,9 +249,7 @@ class PlaceControllerIntegrationTest {
     }
 
     @AfterEach
-    void cleanup() {
-        log.info("Cleaning up test data");
-        // Delete in correct order due to foreign key constraints
+    void cleanupAfter() {
         jdbcTemplate.execute("DELETE FROM place_photos");
         jdbcTemplate.execute("DELETE FROM places");
     }

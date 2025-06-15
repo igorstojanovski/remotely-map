@@ -1,4 +1,4 @@
-package com.example.api.dto;
+package com.remotelymap.api.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,6 +1,7 @@
-package com.example.api.repository;
+package com.remotelymap.api.repository;
 
-import com.example.api.model.Place;
+import com.remotelymap.api.model.Place;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
