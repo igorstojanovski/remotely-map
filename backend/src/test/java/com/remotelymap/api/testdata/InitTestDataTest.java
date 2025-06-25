@@ -11,6 +11,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class InitTestDataTest {
 
     @Container
-    static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")
+    static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
+            DockerImageName.parse("postgis/postgis:16-3.4-alpine")
+                    .asCompatibleSubstituteFor("postgres")
+    )
             .withDatabaseName("testdb")
             .withUsername("testuser")
             .withPassword("testpass");
@@ -47,19 +51,25 @@ public class InitTestDataTest {
     void testFlywayInsertedPlacesAndPhotos() {
         int placeCount = jdbc.queryForObject("SELECT COUNT(*) FROM places", Integer.class);
         int photoCount = jdbc.queryForObject("SELECT COUNT(*) FROM place_photos", Integer.class);
+        int addressCount = jdbc.queryForObject("SELECT COUNT(*) FROM addresses", Integer.class);
+        int locationCount = jdbc.queryForObject("SELECT COUNT(*) FROM locations", Integer.class);
 
-        // 5 places, 5 photos expected based on the SQL
-        assertThat(placeCount).isEqualTo(5);
-        assertThat(photoCount).isEqualTo(5);
+        // 7 places, 7 photos, 7 addresses, 7 locations expected based on the updated SQL
+        assertThat(placeCount).isEqualTo(7);
+        assertThat(photoCount).isEqualTo(7);
+        assertThat(addressCount).isEqualTo(7);
+        assertThat(locationCount).isEqualTo(7);
 
-        List<Map<String, Object>> rows = jdbc.queryForList("SELECT name, address FROM places");
+        List<Map<String, Object>> rows = jdbc.queryForList("SELECT name FROM places");
         assertThat(rows).extracting(r -> r.get("name"))
                 .containsExactlyInAnyOrder(
-                        "Central Park",
-                        "Empire State Building",
-                        "Times Square",
-                        "Brooklyn Bridge",
-                        "Statue of Liberty"
+                        "Central Park Cafe",
+                        "Empire State Coworking",
+                        "Times Square Internet Cafe",
+                        "Brooklyn Bridge View Library",
+                        "Liberty Coffee Roasters",
+                        "SF Remote Work Hub",
+                        "Mission District Cafe"
                 );
     }
 }

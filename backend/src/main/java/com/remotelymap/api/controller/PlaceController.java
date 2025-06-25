@@ -204,4 +204,92 @@ public class PlaceController {
                 ))
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @Operation(
+        summary = "Search places nearby",
+        description = "Finds places within a specified radius of given coordinates"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Successfully retrieved nearby places",
+            content = @Content(schema = @Schema(implementation = PaginatedResponse.class))
+        )
+    })
+    @GetMapping("/nearby")
+    public ResponseEntity<PaginatedResponse<PlaceResponse>> getPlacesNearby(
+            @Parameter(description = "Latitude") 
+            @RequestParam double lat,
+            @Parameter(description = "Longitude") 
+            @RequestParam double lng,
+            @Parameter(description = "Search radius in kilometers") 
+            @RequestParam(defaultValue = "5.0") double radius,
+            @Parameter(description = "Page number (0-based)") 
+            @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Number of items per page") 
+            @RequestParam(defaultValue = "10") int size) {
+
+        List<Place> places = placeService.getPlacesNearby(lat, lng, radius, page, size);
+        long totalElements = placeService.countPlaces(); // Simplified for now
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        List<PlaceResponse> placeResponses = places.stream()
+                .map(placeMapper::toResponse)
+                .collect(Collectors.toList());
+
+        PaginatedResponse<PlaceResponse> response = new PaginatedResponse<>(
+            placeResponses,
+            page,
+            size,
+            totalElements,
+            totalPages,
+            page < totalPages - 1,
+            page > 0
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+        summary = "Search places by text",
+        description = "Searches places by name, description, or city"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Successfully retrieved search results",
+            content = @Content(schema = @Schema(implementation = PaginatedResponse.class))
+        )
+    })
+    @GetMapping("/search")
+    public ResponseEntity<PaginatedResponse<PlaceResponse>> searchPlaces(
+            @Parameter(description = "Search query for name or description") 
+            @RequestParam(required = false) String q,
+            @Parameter(description = "Filter by city") 
+            @RequestParam(required = false) String city,
+            @Parameter(description = "Page number (0-based)") 
+            @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Number of items per page") 
+            @RequestParam(defaultValue = "10") int size) {
+
+        List<Place> places = placeService.searchPlaces(q, city, page, size);
+        long totalElements = placeService.countPlaces(); // Simplified for now
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        List<PlaceResponse> placeResponses = places.stream()
+                .map(placeMapper::toResponse)
+                .collect(Collectors.toList());
+
+        PaginatedResponse<PlaceResponse> response = new PaginatedResponse<>(
+            placeResponses,
+            page,
+            size,
+            totalElements,
+            totalPages,
+            page < totalPages - 1,
+            page > 0
+        );
+
+        return ResponseEntity.ok(response);
+    }
 } 

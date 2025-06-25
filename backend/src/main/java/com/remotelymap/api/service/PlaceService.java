@@ -18,7 +18,18 @@ public class PlaceService {
 
     @Transactional(readOnly = true)
     public List<Place> getAllPlaces(int page, int size) {
-        return placeRepository.findAll(page, size);
+        return placeRepository.findAllWithAddressAndLocation(page, size);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Place> getPlacesNearby(double latitude, double longitude, double radiusKm, int page, int size) {
+        double radiusMeters = radiusKm * 1000; // Convert km to meters
+        return placeRepository.findByLocationNear(latitude, longitude, radiusMeters, page, size);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Place> searchPlaces(String query, String city, int page, int size) {
+        return placeRepository.findByTextSearch(query, city, page, size);
     }
 
     @Transactional(readOnly = true)

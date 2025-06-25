@@ -11,7 +11,8 @@ public class PlaceResponse {
     private UUID id;
     private String name;
     private String description;
-    private String address;
+    private AddressResponse address;
+    private LocationResponse location;
     private Double rating;
     private List<String> photos;
     private OffsetDateTime createdAt;
