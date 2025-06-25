@@ -184,20 +184,37 @@ public class JdbcPlaceRepository implements PlaceRepository {
     @Override
     public List<Place> findByLocationNear(double latitude, double longitude, double radiusMeters, int page, int size) {
         String sql = """
-        SELECT 
-            p.id as p_id, p.name as p_name, p.description as p_description, 
-            p.address_id as p_address_id, p.location_id as p_location_id, 
-            p.rating as p_rating, p.created_at as p_created_at, p.updated_at as p_updated_at,
-            a.id as a_id, a.street as a_street, a.city as a_city, a.country as a_country,
-            a.created_at as a_created_at, a.updated_at as a_updated_at,
-            l.id as l_id, l.latitude as l_latitude, l.longitude as l_longitude,
-            l.created_at as l_created_at, l.updated_at as l_updated_at
-        FROM places p
-        LEFT JOIN addresses a ON p.address_id = a.id
-        JOIN locations l ON p.location_id = l.id
-        WHERE ST_DWithin(l.point, ST_Point(?, ?, 4326), ?)
-        ORDER BY ST_Distance(l.point, ST_Point(?, ?, 4326))
-        LIMIT ? OFFSET ?
+            SELECT
+              p.id          AS p_id,
+              p.name        AS p_name,
+              p.description AS p_description,
+              p.address_id  AS p_address_id,
+              p.location_id AS p_location_id,
+              p.rating      AS p_rating,
+              p.created_at  AS p_created_at,
+              p.updated_at  AS p_updated_at,
+              a.id          AS a_id,
+              a.street      AS a_street,
+              a.city        AS a_city,
+              a.country     AS a_country,
+              a.created_at  AS a_created_at,
+              a.updated_at  AS a_updated_at,
+              l.id          AS l_id,
+              l.latitude    AS l_latitude,
+              l.longitude   AS l_longitude,
+              l.created_at  AS l_created_at,
+              l.updated_at  AS l_updated_at
+            FROM places p
+            LEFT JOIN addresses  a ON p.address_id  = a.id
+            JOIN       locations l ON p.location_id = l.id
+            WHERE ST_DWithin(
+                    l.point::geography,
+                    ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography,
+                    ?                          -- radius in metres
+                  )
+            ORDER BY l.point <-> ST_SetSRID(ST_MakePoint(?, ?), 4326)  -- same lon/lat pair
+            LIMIT  ? OFFSET ?;
+
         """;
         return jdbcTemplate.query(sql, placeWithJoinRowMapper, 
             longitude, latitude, radiusMeters,
@@ -207,7 +224,7 @@ public class JdbcPlaceRepository implements PlaceRepository {
 
     @Override
     public List<Place> findByTextSearch(String query, String city, int page, int size) {
-        String sql = """
+        StringBuilder sqlBuilder = new StringBuilder("""
         SELECT 
             p.id as p_id, p.name as p_name, p.description as p_description, 
             p.address_id as p_address_id, p.location_id as p_location_id, 
@@ -219,14 +236,27 @@ public class JdbcPlaceRepository implements PlaceRepository {
         FROM places p
         LEFT JOIN addresses a ON p.address_id = a.id
         LEFT JOIN locations l ON p.location_id = l.id
-        WHERE (? IS NULL OR p.name ILIKE '%' || ? || '%' OR p.description ILIKE '%' || ? || '%')
-        AND (? IS NULL OR a.city ILIKE '%' || ? || '%')
-        ORDER BY p.created_at DESC
-        LIMIT ? OFFSET ?
-        """;
-        return jdbcTemplate.query(sql, placeWithJoinRowMapper, 
-            query, query, query,
-            city, city,
-            size, page * size);
+        WHERE 1=1
+        """);
+        
+        java.util.List<Object> params = new java.util.ArrayList<>();
+        
+        if (query != null && !query.trim().isEmpty()) {
+            sqlBuilder.append(" AND (p.name ILIKE ? OR p.description ILIKE ?)");
+            String searchPattern = "%" + query + "%";
+            params.add(searchPattern);
+            params.add(searchPattern);
+        }
+        
+        if (city != null && !city.trim().isEmpty()) {
+            sqlBuilder.append(" AND a.city ILIKE ?");
+            params.add("%" + city + "%");
+        }
+        
+        sqlBuilder.append(" ORDER BY p.created_at DESC LIMIT ? OFFSET ?");
+        params.add(size);
+        params.add(page * size);
+        
+        return jdbcTemplate.query(sqlBuilder.toString(), placeWithJoinRowMapper, params.toArray());
     }
 }
