@@ -13,6 +13,15 @@ export default function PlaceCard({ place }: PlaceCardProps) {
 
   const imageUrl = place.photos?.[0] || '/placeholder-image.jpg';
   const rating = place.rating?.toFixed(1) || 'N/A';
+  
+  // Handle both old and new address formats for backward compatibility
+  const displayAddress = place.address 
+    ? (typeof place.address === 'string' 
+        ? place.address 
+        : [place.address.street, place.address.city, place.address.country]
+            .filter(Boolean)
+            .join(', '))
+    : 'No address available';
 
   return (
     <Link href={`/place/${place.id}`}>
@@ -30,7 +39,7 @@ export default function PlaceCard({ place }: PlaceCardProps) {
           <h3 className="text-xl font-semibold text-gray-900 mb-2">{place.name}</h3>
           <p className="text-gray-600 mb-2 line-clamp-2">{place.description || 'No description available'}</p>
           <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-500">{place.address || 'No address available'}</p>
+            <p className="text-sm text-gray-500">{displayAddress}</p>
             <div className="flex items-center">
               <span className="text-yellow-400">★</span>
               <span className="ml-1 text-gray-700">{rating}</span>

@@ -1,7 +1,7 @@
-import { PlacesApi, Configuration } from './generated';
+import { PlacesApi, Configuration, PlaceRequest } from './generated';
 import { ApiError } from './types';
 
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
 
 // Create a singleton instance of the API client
 const api = new PlacesApi(
@@ -51,7 +51,7 @@ class PlacesApiClient {
     }
   }
 
-  async createPlace(place: any) {
+  async createPlace(place: PlaceRequest) {
     try {
       const response = await api.createPlace({ placeRequest: place });
       return response;
@@ -60,7 +60,7 @@ class PlacesApiClient {
     }
   }
 
-  async updatePlace(id: string, place: any) {
+  async updatePlace(id: string, place: PlaceRequest) {
     try {
       const response = await api.updatePlace({ id, placeRequest: place });
       return response;
@@ -80,6 +80,24 @@ class PlacesApiClient {
   async uploadPhoto(id: string, file: File) {
     try {
       const response = await api.uploadPhoto({ id, file });
+      return response;
+    } catch (error) {
+      throw handleError(error);
+    }
+  }
+
+  async searchPlaces(query?: string, city?: string, page = 0, size = 10) {
+    try {
+      const response = await api.searchPlaces({ q: query, city, page, size });
+      return response;
+    } catch (error) {
+      throw handleError(error);
+    }
+  }
+
+  async getPlacesNearby(lat: number, lng: number, radius = 5.0, page = 0, size = 10) {
+    try {
+      const response = await api.getPlacesNearby({ lat, lng, radius, page, size });
       return response;
     } catch (error) {
       throw handleError(error);

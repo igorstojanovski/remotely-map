@@ -48,6 +48,21 @@ export interface GetPlaceByIdRequest {
     id: string;
 }
 
+export interface GetPlacesNearbyRequest {
+    lat: number;
+    lng: number;
+    radius?: number;
+    page?: number;
+    size?: number;
+}
+
+export interface SearchPlacesRequest {
+    q?: string;
+    city?: string;
+    page?: number;
+    size?: number;
+}
+
 export interface UpdatePlaceRequest {
     id: string;
     placeRequest: PlaceRequest;
@@ -203,6 +218,112 @@ export class PlacesApi extends runtime.BaseAPI {
      */
     async getPlaceById(requestParameters: GetPlaceByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PlaceResponse> {
         const response = await this.getPlaceByIdRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Finds places within a specified radius of given coordinates
+     * Search places nearby
+     */
+    async getPlacesNearbyRaw(requestParameters: GetPlacesNearbyRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PaginatedResponse>> {
+        if (requestParameters['lat'] == null) {
+            throw new runtime.RequiredError(
+                'lat',
+                'Required parameter "lat" was null or undefined when calling getPlacesNearby().'
+            );
+        }
+
+        if (requestParameters['lng'] == null) {
+            throw new runtime.RequiredError(
+                'lng',
+                'Required parameter "lng" was null or undefined when calling getPlacesNearby().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['lat'] != null) {
+            queryParameters['lat'] = requestParameters['lat'];
+        }
+
+        if (requestParameters['lng'] != null) {
+            queryParameters['lng'] = requestParameters['lng'];
+        }
+
+        if (requestParameters['radius'] != null) {
+            queryParameters['radius'] = requestParameters['radius'];
+        }
+
+        if (requestParameters['page'] != null) {
+            queryParameters['page'] = requestParameters['page'];
+        }
+
+        if (requestParameters['size'] != null) {
+            queryParameters['size'] = requestParameters['size'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/api/places/nearby`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PaginatedResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Finds places within a specified radius of given coordinates
+     * Search places nearby
+     */
+    async getPlacesNearby(requestParameters: GetPlacesNearbyRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PaginatedResponse> {
+        const response = await this.getPlacesNearbyRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Searches places by name, description, or city
+     * Search places by text
+     */
+    async searchPlacesRaw(requestParameters: SearchPlacesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PaginatedResponse>> {
+        const queryParameters: any = {};
+
+        if (requestParameters['q'] != null) {
+            queryParameters['q'] = requestParameters['q'];
+        }
+
+        if (requestParameters['city'] != null) {
+            queryParameters['city'] = requestParameters['city'];
+        }
+
+        if (requestParameters['page'] != null) {
+            queryParameters['page'] = requestParameters['page'];
+        }
+
+        if (requestParameters['size'] != null) {
+            queryParameters['size'] = requestParameters['size'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/api/places/search`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PaginatedResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Searches places by name, description, or city
+     * Search places by text
+     */
+    async searchPlaces(requestParameters: SearchPlacesRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PaginatedResponse> {
+        const response = await this.searchPlacesRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

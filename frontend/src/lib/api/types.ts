@@ -1,7 +1,17 @@
-import { PlaceResponse, PlaceRequest, PaginatedResponse as GeneratedPaginatedResponse } from './generated';
+import { 
+  PlaceResponse, 
+  PlaceRequest, 
+  AddressResponse, 
+  LocationResponse
+} from './generated';
 
 // Re-export generated types
-export type { PlaceResponse as Place, PlaceRequest };
+export type { 
+  PlaceResponse as Place, 
+  PlaceRequest,
+  AddressResponse,
+  LocationResponse
+};
 
 // Extend generated types if needed
 export interface PaginatedResponse<T> {

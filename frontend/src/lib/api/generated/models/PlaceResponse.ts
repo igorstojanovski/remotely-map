@@ -13,6 +13,21 @@
  */
 
 import { mapValues } from '../runtime';
+import type { LocationResponse } from './LocationResponse';
+import {
+    LocationResponseFromJSON,
+    LocationResponseFromJSONTyped,
+    LocationResponseToJSON,
+    LocationResponseToJSONTyped,
+} from './LocationResponse';
+import type { AddressResponse } from './AddressResponse';
+import {
+    AddressResponseFromJSON,
+    AddressResponseFromJSONTyped,
+    AddressResponseToJSON,
+    AddressResponseToJSONTyped,
+} from './AddressResponse';
+
 /**
  * 
  * @export
@@ -39,10 +54,16 @@ export interface PlaceResponse {
     description?: string;
     /**
      * 
-     * @type {string}
+     * @type {AddressResponse}
      * @memberof PlaceResponse
      */
-    address?: string;
+    address?: AddressResponse;
+    /**
+     * 
+     * @type {LocationResponse}
+     * @memberof PlaceResponse
+     */
+    location?: LocationResponse;
     /**
      * 
      * @type {number}
@@ -89,7 +110,8 @@ export function PlaceResponseFromJSONTyped(json: any, ignoreDiscriminator: boole
         'id': json['id'] == null ? undefined : json['id'],
         'name': json['name'] == null ? undefined : json['name'],
         'description': json['description'] == null ? undefined : json['description'],
-        'address': json['address'] == null ? undefined : json['address'],
+        'address': json['address'] == null ? undefined : AddressResponseFromJSON(json['address']),
+        'location': json['location'] == null ? undefined : LocationResponseFromJSON(json['location']),
         'rating': json['rating'] == null ? undefined : json['rating'],
         'photos': json['photos'] == null ? undefined : json['photos'],
         'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
@@ -111,7 +133,8 @@ export function PlaceResponseToJSONTyped(value?: PlaceResponse | null, ignoreDis
         'id': value['id'],
         'name': value['name'],
         'description': value['description'],
-        'address': value['address'],
+        'address': AddressResponseToJSON(value['address']),
+        'location': LocationResponseToJSON(value['location']),
         'rating': value['rating'],
         'photos': value['photos'],
         'createdAt': value['createdAt'] == null ? undefined : ((value['createdAt']).toISOString()),
